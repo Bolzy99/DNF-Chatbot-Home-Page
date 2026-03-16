@@ -105,7 +105,7 @@ const expand = () => {
                         <div class="h-[1px] flex-grow bg-slate-100"></div>
                         <div class="flex items-center gap-2 opacity-100 group hover:opacity-100 transition-opacity">
                             <span class="text-[9px] font-bold text-slate-700 uppercase tracking-[0.25em]">Powered by BOLZARD</span>
-                            <img src="./public/logo.png" alt="Bolzard" class="h-10 rounded-lg object-contain opacity-100">
+                            <img src="./logo.png" alt="Bolzard" class="h-10 rounded-lg object-contain opacity-100">
                         </div>
                         <div class="h-[1px] flex-grow bg-slate-100"></div>
                     </div>
