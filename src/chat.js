@@ -1,3 +1,4 @@
+import './style.css'
 /**
  * Nomad Intelligence - Concierge Core
  * Enhanced with Gemini-style Materialization Animation
