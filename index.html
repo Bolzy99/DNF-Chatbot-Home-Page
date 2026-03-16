@@ -10,17 +10,16 @@
         :root { --accent: #f59e0b; }
         
         #chat-hub {
-            height: 210px;
+            height: 220px; 
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
             width: 94vw;
             max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             overflow: hidden;
             position: relative;
-            transform: scale(0.97);
-            opacity: 0.96;
-            transition:
-                height 0.85s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.5s ease;
+            transform: scale(1);
         }
 
         #chat-hub.is-expanded { 
@@ -28,8 +27,7 @@
             max-width: 950px; 
             border-radius: 3rem; 
             justify-content: flex-start;
-            transform: scale(1);
-            opacity: 1;
+            transform: scale(1.01);
         }
 
         #text-stage { 
@@ -114,19 +112,14 @@
         }
         #chat-hub.is-expanded #status-bar { opacity: 1; height: 44px; margin-bottom: 0.5rem; }
 
-        #history-container { height: 0; opacity: 0; transform: translateY(10px); transition: opacity 0.45s ease, transform 0.45s ease; overflow-y: auto; flex-grow: 1; }
-        #chat-hub.is-expanded #history-container { opacity: 1; transform: translateY(0); padding: 1rem 0; }
+        #history-container { height: 0; opacity: 0; transition: all 0.6s ease; overflow-y: auto; flex-grow: 1; }
+        #chat-hub.is-expanded #history-container { opacity: 1; padding: 1rem 0; }
 
         .input-container-wrapper {
             padding: 1.25rem;
             padding-top: 0;
             position: relative;
             z-index: 60;
-            transform: translateY(0);
-            transition: transform 0.45s ease;
-        }
-        #chat-hub.is-expanded .input-container-wrapper {
-            transform: translateY(-6px);
         }
     </style>
 </head>
