@@ -22,9 +22,9 @@
 
 /* --- Frosted Glass --- */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
+  background: #ffffffee;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   /* 4. Smooth Easing for Expansion */
   transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
