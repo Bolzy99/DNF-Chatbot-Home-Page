@@ -94,9 +94,3 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
-/* Make chatbot behave like a widget when embedded */
-html, body {
-  margin: 0;
-  padding: 0;
-  background: transparent;
-}
