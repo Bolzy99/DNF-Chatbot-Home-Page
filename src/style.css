@@ -98,10 +98,5 @@
 html, body {
   margin: 0;
   padding: 0;
-  height: auto;
   background: transparent;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
 }
