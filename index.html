@@ -8,15 +8,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --accent: #f59e0b; }
-        
-        #chat-hub {
+        .fixed {
             pointer-events: none;
         }
+
         #chat-hub {
-            height: 70px; 
+            pointer-events: auto;
+        }
+        #chat-hub {
+            height: 220px; 
             transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-            width: 280px;
-            max-width: 280px;
+            width: 94vx;
+            max-width: 900px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
