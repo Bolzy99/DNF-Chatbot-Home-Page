@@ -322,3 +322,13 @@ function animate() {
 
 init(); animate();
 window.addEventListener('resize', init);
+chatHub.addEventListener('mouseenter', () => {
+    window.parent.postMessage({ action: 'enableClicks' }, '*');
+});
+
+chatHub.addEventListener('mouseleave', () => {
+    // Only tell parent to disable clicks if we aren't expanded
+    if (!chatHub.classList.contains('is-expanded')) {
+        window.parent.postMessage({ action: 'disableClicks' }, '*');
+    }
+});
