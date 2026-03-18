@@ -90,6 +90,7 @@ updateClock();
 const expand = () => {
     if (!chatHub.classList.contains('is-expanded')) {
         chatHub.classList.add('is-expanded');
+        window.parent.postMessage({ action: 'expand' }, '*');
         minimizeBtn.classList.remove('hidden');
         chipsArea.style.opacity = '1';
         chipsArea.style.height = 'auto';
@@ -127,6 +128,7 @@ userInput.addEventListener('click', expand);
 minimizeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     chatHub.classList.remove('is-expanded');
+    window.parent.postMessage({ action: 'collapse' }, '*');
     minimizeBtn.classList.add('hidden');
     chipsArea.style.opacity = '0';
     chipsArea.style.height = '0';
