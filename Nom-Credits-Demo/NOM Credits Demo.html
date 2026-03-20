@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOM Credits — Ecosystem Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Syne:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; background: #1C1C1E; }
+
+/* ── BROWSER SHELL ── */
+.browser-shell { display: flex; flex-direction: column; height: 100vh; background: #2A2A2E; }
+
+.tab-bar { display: flex; align-items: flex-end; background: #1C1C1E; padding: 12px 16px 0; gap: 2px; flex-shrink: 0; }
+.browser-tab {
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px 11px;
+  border-radius: 10px 10px 0 0; cursor: pointer; font-size: 12.5px; font-weight: 500;
+  white-space: nowrap; border: none; background: #2E2E32; color: #888; transition: all 0.2s;
+  min-width: 170px; max-width: 230px;
+}
+.browser-tab:hover { background: #38383C; color: #bbb; }
+.browser-tab.active { background: #fff; color: #1a1a1a; }
+.browser-tab .tab-favicon { font-size: 14px; flex-shrink: 0; }
+.browser-tab .tab-label { overflow: hidden; text-overflow: ellipsis; flex: 1; text-align: left; }
+.tab-notify { width: 7px; height: 7px; border-radius: 50%; background: #E8394D; flex-shrink: 0; animation: pdot 1.5s infinite; }
+@keyframes pdot { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.address-bar-row {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; padding: 8px 14px; flex-shrink: 0; border-bottom: 1px solid #e5e7eb;
+}
+.nav-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: #aaa; padding: 2px 8px; border-radius: 6px; }
+.nav-btn:hover { background: #f3f4f6; color: #444; }
+.address-pill {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  background: #f3f4f6; border-radius: 8px; padding: 7px 14px;
+  font-size: 13px; color: #444; font-family: 'JetBrains Mono', monospace;
+}
+.address-pill .lock { font-size: 11px; color: #22C55E; }
+
+.viewport { flex: 1; overflow-y: auto; background: #fff; position: relative; }
+.tab-page { display: none; min-height: 100%; }
+.tab-page.active { display: block; animation: pageIn .3s ease; }
+@keyframes pageIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── SHARED ── */
+.spinner { width: 17px; height: 17px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; vertical-align: middle; }
+@keyframes spin { to{transform:rotate(360deg)} }
+@keyframes popIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+@keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+@keyframes balPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+.pulse { animation: balPulse .4s ease; }
+
+#toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.toast { background: #111; color: #fff; border-radius: 12px; padding: 13px 18px; font-size: 13.5px; font-weight: 500; display: flex; align-items: center; gap: 9px; box-shadow: 0 8px 32px rgba(0,0,0,.35); border-left: 3px solid #22C55E; animation: toastIn .4s cubic-bezier(.175,.885,.32,1.275); }
+.toast.error { border-left-color: #E8394D; }
+@keyframes toastIn { from{opacity:0;transform:translateX(40px) scale(.9)} to{opacity:1;transform:translateX(0) scale(1)} }
+@keyframes toastOut { to{opacity:0;transform:translateX(40px) scale(.9)} }
+
+/* ════════════════════════════════════════════
+   TAB 1 — NOMAD FEST TICKETS PAGE
+   Aesthetic: Warm editorial travel, Playfair headlines
+════════════════════════════════════════════ */
+#page-nomad { background: #FFFDF8; }
+
+.nf-nav { background: #fff; border-bottom: 1px solid #f0ede6; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 68px; position: sticky; top: 0; z-index: 10; }
+.nf-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: #1a1205; }
+.nf-logo span { color: #E87C3E; }
+.nf-nav-links { display: flex; gap: 28px; font-size: 14px; color: #6b5e4c; font-weight: 500; }
+.nf-nav-links a { text-decoration: none; color: inherit; cursor: pointer; }
+.nf-nav-links a.cur { color: #1a1205; font-weight: 700; }
+.nf-nav-cta { background: #1a1205; color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+
+.nf-hero { background: linear-gradient(155deg, #1a1205 0%, #3d2b0e 55%, #5c3d1a 100%); padding: 72px 48px 64px; position: relative; overflow: hidden; }
+.nf-hero-grid { position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,.025) 60px), repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,.025) 60px); }
+.nf-hero-content { position: relative; }
+.nf-hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(232,124,62,.18); border: 1px solid rgba(232,124,62,.35); border-radius: 20px; padding: 5px 14px; font-size: 12px; color: #E87C3E; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 24px; }
+.nf-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(34px,5.5vw,60px); font-weight: 800; color: #fff; line-height: 1.08; letter-spacing: -1px; margin-bottom: 14px; max-width: 640px; }
+.nf-hero p { color: rgba(255,255,255,.5); font-size: 17px; max-width: 480px; line-height: 1.65; margin-bottom: 36px; }
+.nf-hero-stats { display: flex; gap: 40px; flex-wrap: wrap; }
+.nf-stat .num { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: #E87C3E; }
+.nf-stat .lab { font-size: 13px; color: rgba(255,255,255,.35); margin-top: 2px; }
+
+.nf-section { padding: 56px 48px; }
+.nf-sl { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #9c8a72; margin-bottom: 8px; }
+.nf-st { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 800; color: #1a1205; margin-bottom: 8px; }
+.nf-ss { color: #7a6a58; font-size: 15px; margin-bottom: 36px; max-width: 500px; }
+
+.nom-int-banner { background: linear-gradient(135deg, #0F1117, #1A1D27); border-radius: 16px; padding: 20px 24px; margin-bottom: 36px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(255,255,255,.07); }
+.nom-int-icon { width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, #E8394D, #7C3AED, #2563EB); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.nom-int-text h4 { color: #fff; font-size: 15px; font-weight: 600; }
+.nom-int-text p { color: rgba(255,255,255,.4); font-size: 13px; margin-top: 3px; }
+.nom-int-pill { margin-left: auto; background: linear-gradient(135deg, #E8394D, #2563EB); border-radius: 20px; padding: 6px 14px; font-size: 11.5px; font-weight: 700; color: #fff; white-space: nowrap; }
+
+.nf-tickets-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.nf-ticket { border: 1.5px solid #ede8de; border-radius: 18px; overflow: hidden; background: #fff; transition: all .3s; }
+.nf-ticket:hover { border-color: #d4c8b8; box-shadow: 0 16px 48px rgba(26,18,5,.1); transform: translateY(-4px); }
+.nf-ticket.featured { border-color: #E87C3E; }
+.nf-ticket-header { padding: 24px 24px 0; }
+.nf-ticket-img { height: 130px; border-radius: 12px; margin-bottom: 18px; display: flex; align-items: center; justify-content: center; font-size: 44px; }
+.nf-ticket-img.std { background: linear-gradient(135deg, #f5f1e8, #ede8de); }
+.nf-ticket-img.vip-img { background: linear-gradient(135deg, #1a1205, #3d2b0e); }
+.nf-ticket-badge { font-size: 10.5px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 10px; border-radius: 5px; display: inline-block; margin-bottom: 10px; }
+.nf-ticket-badge.std { background: #f0ece4; color: #7a6a58; }
+.nf-ticket-badge.vip { background: rgba(232,124,62,.1); color: #E87C3E; }
+.nf-ticket h3 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #1a1205; margin-bottom: 6px; }
+.nf-ticket-price { font-size: 40px; font-weight: 700; color: #1a1205; letter-spacing: -1.5px; line-height: 1; }
+.nf-ticket-price sup { font-size: 17px; vertical-align: top; margin-top: 9px; display: inline-block; font-weight: 400; }
+.nf-nom-reward { display: flex; align-items: center; gap: 8px; background: #f7f5f0; border-radius: 9px; padding: 10px 14px; margin: 14px 0; font-size: 13.5px; }
+.nf-nom-reward .nval { font-weight: 700; color: #2563EB; }
+.nf-ticket-body { padding: 0 24px 24px; }
+.nf-perks { list-style: none; margin: 10px 0 20px; }
+.nf-perks li { font-size: 13.5px; color: #6b5e4c; padding: 6px 0; border-bottom: 1px solid #f5f2ec; display: flex; gap: 8px; }
+.nf-perks li::before { content: '✓'; color: #22C55E; font-weight: 700; }
+.nf-buy-btn { width: 100%; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: all .25s; font-family: 'DM Sans', sans-serif; }
+.nf-buy-btn.std { background: #1a1205; color: #fff; }
+.nf-buy-btn.std:hover { background: #2d1f08; }
+.nf-buy-btn.vip-btn { background: #E87C3E; color: #fff; }
+.nf-buy-btn.vip-btn:hover { background: #d06c2e; }
+.nf-buy-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.nf-success-wrap { padding: 0 48px 56px; display: none; }
+.nf-success-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1.5px solid #86efac; border-radius: 18px; padding: 40px; text-align: center; animation: popIn .5s cubic-bezier(.175,.885,.32,1.275); }
+.nf-success-card h3 { font-family: 'Playfair Display', serif; font-size: 28px; color: #15803d; margin: 14px 0 8px; }
+.nf-success-card p { color: #374151; font-size: 15px; margin-bottom: 6px; }
+.nom-earned { font-family: 'Syne', sans-serif; font-size: 50px; font-weight: 800; color: #2563EB; margin: 18px 0 8px; }
+.nom-earned small { font-size: 18px; font-weight: 500; color: #6b7280; font-family: 'DM Sans', sans-serif; }
+.success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+.success-actions button { padding: 13px 22px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+.sa-dark { background: #1a1205; color: #fff; }
+.sa-dark:hover { background: #2d1f08; }
+.sa-light { background: #f3f4f6; color: #1a1205; }
+.sa-light:hover { background: #e5e7eb; }
+.sa-blue { background: linear-gradient(135deg, #2563EB, #7C3AED); color: #fff; }
+.sa-blue:hover { opacity: .9; }
+
+/* ════════════════════════════════════════════
+   TAB 2 — EMAIL INBOX
+════════════════════════════════════════════ */
+#page-email { background: #f6f8fa; }
+.email-shell { display: flex; min-height: 100vh; }
+.email-sidebar { width: 215px; background: #fff; border-right: 1px solid #e5e7eb; padding: 20px 0; flex-shrink: 0; }
+.email-sidebar-logo { padding: 8px 20px 20px; font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: #111; }
+.email-sidebar-logo em { color: #E8394D; font-style: normal; }
+.email-folder { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13.5px; color: #6b7280; cursor: pointer; transition: all .15s; }
+.email-folder:hover { background: #f9fafb; }
+.email-folder.active { background: #eff6ff; color: #2563EB; font-weight: 600; }
+.email-folder .fi { font-size: 15px; }
+.email-folder .fbadge { margin-left: auto; background: #E8394D; color: #fff; font-size: 10px; font-weight: 700; border-radius: 99px; padding: 1px 7px; }
+
+.email-list { width: 290px; background: #fff; border-right: 1px solid #e5e7eb; flex-shrink: 0; }
+.email-list-hdr { padding: 20px 20px 14px; border-bottom: 1px solid #f3f4f6; }
+.email-list-hdr h3 { font-size: 16px; font-weight: 700; color: #111; }
+.email-list-hdr p { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+.email-item { padding: 14px 18px; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background .15s; position: relative; }
+.email-item:hover { background: #f9fafb; }
+.email-item.unread { background: #eff6ff; }
+.email-item.selected { background: #dbeafe !important; }
+.email-item .udot { position: absolute; left: 7px; top: 50%; transform: translateY(-50%); width: 7px; height: 7px; border-radius: 50%; background: #2563EB; }
+.ef { font-size: 13px; font-weight: 700; color: #111; display: flex; justify-content: space-between; margin-bottom: 3px; }
+.ef .etime { font-weight: 400; color: #9ca3af; font-size: 11px; }
+.es { font-size: 12.5px; color: #374151; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ep { font-size: 12px; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.email-view { flex: 1; background: #fff; overflow-y: auto; }
+.email-view-hdr { padding: 24px 32px 20px; border-bottom: 1px solid #f3f4f6; }
+.email-view-hdr h2 { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 14px; }
+.email-meta { display: flex; align-items: center; gap: 12px; }
+.email-ava { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #E8394D, #2563EB); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.email-sinfo { font-size: 13.5px; }
+.email-sinfo strong { color: #111; display: block; }
+.email-sinfo span { color: #9ca3af; font-size: 12px; }
+.email-body { padding: 32px; }
+
+.email-tpl { max-width: 540px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; }
+.etpl-head { background: #0F1117; padding: 28px 32px; text-align: center; }
+.etpl-head .elogo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; }
+.etpl-head .elogo em { background: linear-gradient(135deg, #E8394D, #2563EB); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-style: normal; }
+.etpl-head .etag { font-size: 12px; color: rgba(255,255,255,.25); margin-top: 5px; font-family: 'JetBrains Mono', monospace; }
+.etpl-body { background: #fff; padding: 36px 32px; }
+.etpl-body h3 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: #111; margin-bottom: 12px; }
+.etpl-body p { color: #6b7280; line-height: 1.7; margin-bottom: 14px; font-size: 14px; }
+.nom-box { background: linear-gradient(135deg, #0F1117, #1A1D27); border-radius: 14px; padding: 30px; margin: 24px 0; text-align: center; position: relative; overflow: hidden; }
+.nom-box::before { content:''; position:absolute;inset:0;background:linear-gradient(135deg,#E8394D,#7C3AED,#2563EB);opacity:.1; }
+.nom-box .nb-amount { font-family: 'Syne', sans-serif; font-size: 54px; font-weight: 800; color: #fff; position: relative; letter-spacing: -2px; }
+.nom-box .nb-unit { font-size: 16px; color: rgba(255,255,255,.35); position: relative; margin-top: 5px; }
+.nom-box .nb-sub { color: rgba(255,255,255,.25); font-size: 12px; position: relative; margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+.etpl-events { border: 1px solid #f3f4f6; border-radius: 10px; overflow: hidden; margin: 20px 0; }
+.etpl-ev { display: flex; align-items: center; padding: 11px 16px; border-bottom: 1px solid #f9fafb; font-size: 13px; gap: 10px; }
+.etpl-ev:last-child { border-bottom: none; }
+.etpl-ev .en { flex: 1; color: #374151; font-weight: 500; }
+.etpl-ev .ec { color: #2563EB; font-weight: 700; }
+.etpl-cta { display: block; background: linear-gradient(135deg, #E8394D, #7C3AED, #2563EB); color: #fff; text-align: center; padding: 15px; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; border: none; width: 100%; font-family: 'DM Sans', sans-serif; margin-top: 8px; }
+.etpl-cta:hover { opacity: .9; }
+.etpl-foot { background: #f9fafb; padding: 20px 32px; text-align: center; }
+.etpl-foot p { font-size: 11.5px; color: #9ca3af; line-height: 1.6; }
+
+/* ════════════════════════════════════════════
+   TAB 3 — NOM APP (WALLET)
+   Dark premium fintech
+════════════════════════════════════════════ */
+#page-nom { background: #0F1117; }
+.nom-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 68px; border-bottom: 1px solid rgba(255,255,255,.06); background: rgba(15,17,23,.96); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 10; }
+.nom-nav-logo { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; }
+.nom-nav-logo .nhex { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, #E8394D, #7C3AED, #2563EB); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.nom-nav-links { display: flex; gap: 4px; background: rgba(255,255,255,.05); border-radius: 10px; padding: 4px; }
+.nom-nav-link { padding: 7px 16px; border-radius: 7px; font-size: 13px; color: rgba(255,255,255,.4); cursor: pointer; border: none; background: transparent; font-weight: 500; transition: all .2s; font-family: 'DM Sans', sans-serif; }
+.nom-nav-link.active { background: rgba(255,255,255,.1); color: #fff; }
+.nom-user-pill { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.05); border-radius: 20px; padding: 6px 14px; cursor: pointer; }
+.nom-user-pill .nupa { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, #E8394D, #2563EB); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.nom-user-pill span { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.65); }
+
+.nom-body { max-width: 900px; margin: 0 auto; padding: 36px 40px 80px; }
+
+.nom-user-row { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.nom-big-ava { width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, #E8394D, #7C3AED, #2563EB); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+.nom-uinfo h2 { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -.5px; }
+.nom-uinfo p { color: rgba(255,255,255,.3); font-size: 13px; margin-top: 3px; }
+.nom-active-pill { margin-left: auto; display: flex; align-items: center; gap: 7px; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.2); border-radius: 20px; padding: 7px 14px; font-size: 12.5px; color: #22C55E; font-weight: 600; }
+.nom-active-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; animation: pdot 1.5s infinite; }
+
+.nom-bal-card { border-radius: 22px; padding: 32px; position: relative; overflow: hidden; margin-bottom: 22px; background: linear-gradient(135deg, #1a1d27 0%, #1e2130 100%); border: 1px solid rgba(255,255,255,.06); }
+.nbg1 { position:absolute;width:280px;height:280px;border-radius:50%;background:#E8394D;filter:blur(80px);opacity:.12;top:-80px;right:-60px; }
+.nbg2 { position:absolute;width:200px;height:200px;border-radius:50%;background:#2563EB;filter:blur(60px);opacity:.1;bottom:-60px;left:20px; }
+.nbg3 { position:absolute;width:160px;height:160px;border-radius:50%;background:#7C3AED;filter:blur(50px);opacity:.1;bottom:20px;right:80px; }
+.nom-bc { position: relative; z-index: 1; }
+.nom-bc-lbl { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.28); margin-bottom: 10px; }
+.nom-bc-amt { font-family: 'Syne', sans-serif; font-size: clamp(44px,7vw,68px); font-weight: 800; color: #fff; letter-spacing: -2px; line-height: 1; transition: all .4s; }
+.nom-bc-amt .nunit { font-size: 20px; color: rgba(255,255,255,.28); font-weight: 500; letter-spacing: 0; margin-left: 8px; }
+.nom-bc-eq { color: rgba(255,255,255,.2); font-size: 12.5px; margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+.nom-bc-row { display: flex; align-items: flex-end; gap: 24px; margin-top: 28px; }
+.nom-bc-stat .sv { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: #fff; }
+.nom-bc-stat .sl { font-size: 11px; color: rgba(255,255,255,.22); margin-top: 3px; }
+.nom-bc-prog { flex: 1; }
+.nom-bc-prog .plbl { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.22); margin-bottom: 7px; }
+.nom-bc-prog .pbar { height: 5px; background: rgba(255,255,255,.07); border-radius: 99px; overflow: hidden; }
+.nom-bc-prog .pfill { height: 100%; background: linear-gradient(135deg, #E8394D, #7C3AED, #2563EB); border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+.nom-stats3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 26px; }
+.nom-sc { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 14px; padding: 18px 20px; }
+.nom-sc .scv { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.nom-sc .scl { font-size: 12px; color: rgba(255,255,255,.28); }
+.nom-sc .sct { font-size: 11px; color: #22C55E; margin-top: 4px; font-weight: 600; }
+
+.nom-sec-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.nom-sec-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #fff; }
+.nom-sec-sub { font-size: 12.5px; color: rgba(255,255,255,.25); }
+.nom-txn-list { border: 1px solid rgba(255,255,255,.06); border-radius: 16px; overflow: hidden; background: rgba(255,255,255,.015); }
+.nom-txn-item { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,.04); transition: background .2s; animation: slideIn .3s ease; }
+.nom-txn-item:last-child { border-bottom: none; }
+.nom-txn-item:hover { background: rgba(255,255,255,.03); }
+.nom-txn-ico { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.nom-txn-ico.credit { background: rgba(34,197,94,.1); }
+.nom-txn-ico.debit { background: rgba(232,57,77,.1); }
+.nom-txn-lbl h5 { font-size: 14px; font-weight: 600; color: #fff; }
+.nom-txn-lbl p { font-size: 12px; color: rgba(255,255,255,.28); margin-top: 2px; }
+.nom-txn-amt { margin-left: auto; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; white-space: nowrap; }
+.nom-txn-amt.credit { color: #22C55E; }
+.nom-txn-amt.debit { color: #E8394D; }
+.nom-txn-empty { padding: 40px; text-align: center; color: rgba(255,255,255,.2); font-size: 14px; line-height: 1.7; }
+
+.nom-partners { margin-top: 26px; border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 20px 24px; background: rgba(255,255,255,.015); }
+.nom-partner-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.nom-partner-row:last-child { border-bottom: none; }
+.npm-logo { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(255,255,255,.05); flex-shrink: 0; }
+.npm-info h5 { font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.75); }
+.npm-info p { font-size: 11.5px; color: rgba(255,255,255,.28); }
+.npm-status { margin-left: auto; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.npm-status.con { background: rgba(34,197,94,.1); color: #22C55E; }
+.npm-status.pen { background: rgba(234,179,8,.1); color: #EAB308; }
+
+/* ════════════════════════════════════════════
+   TAB 4 — NOMAD FEST SIDE EVENTS
+   Same NomadFest brand, different page
+════════════════════════════════════════════ */
+#page-events { background: #FFFDF8; }
+
+.nf2-hero { background: linear-gradient(155deg, #1a1205 0%, #2d1f08 100%); padding: 44px 48px 40px; }
+.nf2-breadcrumb { font-size: 13px; color: rgba(255,255,255,.3); margin-bottom: 14px; }
+.nf2-breadcrumb span { color: rgba(255,255,255,.6); }
+.nf2-hero h1 { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.nf2-hero p { color: rgba(255,255,255,.4); font-size: 15px; }
+
+.nf2-bal-bar { background: linear-gradient(135deg, #0F1117, #1A1D27); padding: 16px 48px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid rgba(255,255,255,.05); }
+.nf2-bal-bar .blbl { font-size: 11px; color: rgba(255,255,255,.3); font-weight: 600; letter-spacing: .8px; text-transform: uppercase; margin-bottom: 3px; }
+.nf2-bal-bar .bamt { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; }
+.nf2-bal-bar .bamt em { font-size: 13px; color: rgba(255,255,255,.3); font-style: normal; font-family: 'DM Sans', sans-serif; font-weight: 500; margin-left: 4px; }
+.nf2-bal-bar .bpow { margin-left: auto; font-size: 12px; color: rgba(255,255,255,.22); display: flex; align-items: center; gap: 6px; }
+.nf2-bal-bar .bpow strong { color: rgba(255,255,255,.45); }
+
+.nf2-section { padding: 44px 48px; }
+.nf2-sec-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #9c8a72; margin-bottom: 8px; }
+.nf2-sec-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; color: #1a1205; margin-bottom: 28px; }
+.nf2-grid { display: flex; flex-direction: column; gap: 16px; }
+
+.nf2-card { background: #fff; border: 1.5px solid #ede8de; border-radius: 18px; padding: 24px 28px; display: flex; align-items: center; gap: 22px; transition: all .25s; }
+.nf2-card:hover:not(.redeemed) { border-color: #d4c8b8; box-shadow: 0 8px 32px rgba(26,18,5,.08); transform: translateX(4px); }
+.nf2-card.redeemed { border-color: #bbf7d0; background: #f0fdf4; }
+.nf2-ev-emoji { font-size: 32px; width: 64px; height: 64px; background: linear-gradient(135deg, #f5f1e8, #ede8de); border-radius: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.nf2-ev-info { flex: 1; }
+.nf2-ev-info h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1a1205; margin-bottom: 4px; }
+.nf2-ev-info p { color: #7a6a58; font-size: 13.5px; margin-bottom: 8px; }
+.nf2-ev-meta { display: flex; gap: 16px; }
+.nf2-ev-meta span { font-size: 12px; color: #9c8a72; display: flex; align-items: center; gap: 4px; }
+.nf2-ev-right { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+.nf2-price .pm { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #1a1205; line-height: 1; }
+.nf2-price .ps { font-size: 11px; color: #9c8a72; text-align: center; margin-top: 3px; }
+.nf2-redeem-btn { padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; background: #E87C3E; color: #fff; transition: all .2s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+.nf2-redeem-btn:hover:not(:disabled) { background: #d06c2e; transform: scale(1.03); }
+.nf2-redeem-btn:disabled { cursor: not-allowed; }
+.nf2-redeem-btn.done { background: #22C55E; transform: none !important; }
+.nf2-redeem-btn.insuf { background: #f3f4f6; color: #9ca3af; }
+
+.nf2-footer { background: #1a1205; padding: 24px 48px; display: flex; align-items: center; gap: 14px; }
+.nf2-footer-logo { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: rgba(255,255,255,.35); }
+.nf2-footer p { font-size: 13px; color: rgba(255,255,255,.2); }
+.nf2-footer a { font-size: 13px; color: rgba(255,255,255,.4); margin-left: auto; font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+@media (max-width: 720px) {
+  .email-sidebar, .email-list { display: none; }
+  .nf-section, .nf2-section, .nf2-hero, .nf2-bal-bar, .nf2-footer { padding-left: 20px; padding-right: 20px; }
+  .nf-nav, .nom-nav { padding: 0 16px; }
+  .nf-nav-links { display: none; }
+  .nom-nav-links { display: none; }
+  .nom-body { padding: 20px 16px 60px; }
+  .nom-stats3 { grid-template-columns: repeat(2,1fr); }
+  .browser-tab { min-width: 90px; }
+  .browser-tab .tab-label { display: none; }
+  .nf2-card { flex-wrap: wrap; }
+  .nf2-ev-right { width: 100%; justify-content: space-between; }
+}
+</style>
+</head>
+<body>
+
+<div class="browser-shell">
+
+  <!-- ══ TAB BAR ══ -->
+  <div class="tab-bar">
+    <button class="browser-tab active" onclick="switchTab('nomad')" id="tab-nomad">
+      <span class="tab-favicon">🌴</span>
+      <span class="tab-label">Nomad Fest — Tickets</span>
+    </button>
+    <button class="browser-tab" onclick="switchTab('email')" id="tab-email">
+      <span class="tab-favicon">📧</span>
+      <span class="tab-label">Inbox — Alex Nomad</span>
+      <span class="tab-notify" id="email-notify" style="display:none;"></span>
+    </button>
+    <button class="browser-tab" onclick="switchTab('nom')" id="tab-nom">
+      <span class="tab-favicon">⬡</span>
+      <span class="tab-label">NOM App — Wallet</span>
+    </button>
+    <button class="browser-tab" onclick="switchTab('events')" id="tab-events">
+      <span class="tab-favicon">🎪</span>
+      <span class="tab-label">Nomad Fest — Side Events</span>
+    </button>
+  </div>
+
+  <!-- ══ ADDRESS BAR ══ -->
+  <div class="address-bar-row">
+    <button class="nav-btn">←</button>
+    <button class="nav-btn">→</button>
+    <button class="nav-btn">↻</button>
+    <div class="address-pill">
+      <span class="lock">🔒</span>
+      <span id="address-url">nomadfest.io/da-nang/tickets</span>
+    </div>
+  </div>
+
+  <!-- ══ VIEWPORT ══ -->
+  <div class="viewport">
+
+    <!-- ████████████████████████████████████
+         TAB 1: NOMAD FEST — BUY TICKET
+    █████████████████████████████████████ -->
+    <div class="tab-page active" id="page-nomad">
+      <nav class="nf-nav">
+        <div class="nf-logo">Nomad<span>Fest</span></div>
+        <div class="nf-nav-links">
+          <a>About</a><a>Schedule</a><a>Speakers</a><a class="cur">Tickets</a><a onclick="switchTab('events')" style="cursor:pointer;">Side Events</a>
+        </div>
+        <button class="nf-nav-cta">Register</button>
+      </nav>
+
+      <div class="nf-hero">
+        <div class="nf-hero-grid"></div>
+        <div class="nf-hero-content">
+          <div class="nf-hero-tag">🌏 &nbsp;Oct 12–15, 2025 &nbsp;·&nbsp; Da Nang, Vietnam</div>
+          <h1>Where the World's<br>Nomads Converge</h1>
+          <p>Four unforgettable days of talks, connections, and adventures in one of Southeast Asia's most vibrant cities.</p>
+          <div class="nf-hero-stats">
+            <div class="nf-stat"><div class="num">800+</div><div class="lab">Attendees</div></div>
+            <div class="nf-stat"><div class="num">60+</div><div class="lab">Speakers</div></div>
+            <div class="nf-stat"><div class="num">30+</div><div class="lab">Side Events</div></div>
+            <div class="nf-stat"><div class="num">40+</div><div class="lab">Countries</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nf-section" id="nf-ticket-section">
+        <div class="nom-int-banner">
+          <div class="nom-int-icon">⬡</div>
+          <div class="nom-int-text">
+            <h4>Powered by NOM Credits</h4>
+            <p>Earn universal credits with every ticket — spend at any side event or future Nomad event worldwide.</p>
+          </div>
+          <div class="nom-int-pill">Universal Currency</div>
+        </div>
+
+        <div class="nf-sl">Choose your pass</div>
+        <div class="nf-st">Tickets for Da Nang 2025</div>
+        <div class="nf-ss">All passes include NOM Credits, automatically sent to your NOM wallet.</div>
+
+        <div class="nf-tickets-grid">
+          <!-- Standard -->
+          <div class="nf-ticket" id="nf-card-std">
+            <div class="nf-ticket-header">
+              <div class="nf-ticket-img std">🌅</div>
+              <div class="nf-ticket-badge std">Standard</div>
+              <h3>Explorer Pass</h3>
+              <div class="nf-ticket-price"><sup>$</sup>99</div>
+              <div class="nf-nom-reward">⬡ &nbsp; Earn <span class="nval">&nbsp;50 NOM Credits</span></div>
+            </div>
+            <div class="nf-ticket-body">
+              <ul class="nf-perks">
+                <li>Main stage & all keynotes</li>
+                <li>Networking lounges</li>
+                <li>50 NOM for side events</li>
+              </ul>
+              <button class="nf-buy-btn std" id="nf-btn-std" onclick="buyTicket('standard',50)">Buy Explorer Pass — $99</button>
+            </div>
+          </div>
+          <!-- VIP -->
+          <div class="nf-ticket featured" id="nf-card-vip">
+            <div class="nf-ticket-header">
+              <div class="nf-ticket-img vip-img">✦</div>
+              <div class="nf-ticket-badge vip">VIP ✦</div>
+              <h3>Visionary Pass</h3>
+              <div class="nf-ticket-price"><sup>$</sup>199</div>
+              <div class="nf-nom-reward">⬡ &nbsp; Earn <span class="nval">&nbsp;120 NOM Credits</span></div>
+            </div>
+            <div class="nf-ticket-body">
+              <ul class="nf-perks">
+                <li>All Explorer benefits</li>
+                <li>VIP lounge & priority seating</li>
+                <li>120 NOM, valid globally</li>
+              </ul>
+              <button class="nf-buy-btn vip-btn" id="nf-btn-vip" onclick="buyTicket('vip',120)">Buy Visionary Pass — $199</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div class="nf-success-wrap" id="nf-success-wrap">
+        <div class="nf-success-card">
+          <div style="font-size:54px;">🎉</div>
+          <h3>Payment Confirmed!</h3>
+          <p>Your Nomad Fest ticket is ready. Your NOM Credits have been dispatched to your wallet:</p>
+          <div class="nom-earned" id="nf-nom-earned">120 <small>NOM Credits</small></div>
+          <p>We've sent a confirmation to your inbox with full details.</p>
+          <div class="success-actions">
+            <button class="sa-dark" onclick="switchTab('email');highlightEmail()">📧 Check Email</button>
+            <button class="sa-blue" onclick="switchTab('nom')">⬡ View NOM Wallet</button>
+            <button class="sa-light" onclick="switchTab('events')">🎪 Browse Side Events</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-nomad -->
+
+
+    <!-- ████████████████████████████████████
+         TAB 2: EMAIL INBOX
+    █████████████████████████████████████ -->
+    <div class="tab-page" id="page-email">
+      <div class="email-shell">
+        <!-- Sidebar -->
+        <div class="email-sidebar">
+          <div class="email-sidebar-logo">Mail<em>.</em></div>
+          <div class="email-folder active"><span class="fi">📥</span> Inbox <span class="fbadge" id="inbox-badge">1</span></div>
+          <div class="email-folder"><span class="fi">⭐</span> Starred</div>
+          <div class="email-folder"><span class="fi">📤</span> Sent</div>
+          <div class="email-folder"><span class="fi">📁</span> Archive</div>
+          <div class="email-folder"><span class="fi">🗑️</span> Trash</div>
+        </div>
+
+        <!-- Email list -->
+        <div class="email-list">
+          <div class="email-list-hdr">
+            <h3>Inbox</h3>
+            <p id="email-list-meta">1 unread</p>
+          </div>
+
+          <div class="email-item unread selected" id="nom-email-item" onclick="selectEmail('nom')">
+            <div class="udot"></div>
+            <div class="ef"><span>NOM Credits</span><span class="etime" id="nom-email-time">Just now</span></div>
+            <div class="es">⬡ Your NOM Credits are ready!</div>
+            <div class="ep">You earned credits from your Nomad Fest ticket…</div>
+          </div>
+          <div class="email-item" onclick="selectEmail('nf')">
+            <div class="ef"><span style="color:#9ca3af;font-weight:400;">Nomad Fest</span><span class="etime">2h ago</span></div>
+            <div class="es">🌴 Nomad Fest Da Nang — See you there!</div>
+            <div class="ep">Full schedule, venue details and what to pack…</div>
+          </div>
+          <div class="email-item">
+            <div class="ef"><span style="color:#9ca3af;font-weight:400;">Notion</span><span class="etime">5h ago</span></div>
+            <div class="es">Your weekly digest is ready</div>
+            <div class="ep">Here's what happened in your workspace…</div>
+          </div>
+          <div class="email-item">
+            <div class="ef"><span style="color:#9ca3af;font-weight:400;">Stripe</span><span class="etime">Yesterday</span></div>
+            <div class="es">Receipt — $199.00</div>
+            <div class="ep">Your payment to Nomad Fest was successful…</div>
+          </div>
+          <div class="email-item">
+            <div class="ef"><span style="color:#9ca3af;font-weight:400;">Airbnb</span><span class="etime">2d ago</span></div>
+            <div class="es">Your Da Nang booking is confirmed</div>
+            <div class="ep">Check-in Oct 11 · Da Nang City Center…</div>
+          </div>
+        </div>
+
+        <!-- Email view -->
+        <div class="email-view" id="email-view-pane">
+          <div class="email-view-hdr">
+            <h2 id="email-view-subject">⬡ Your NOM Credits are ready!</h2>
+            <div class="email-meta">
+              <div class="email-ava">⬡</div>
+              <div class="email-sinfo">
+                <strong>NOM Credits &lt;credits@nom.app&gt;</strong>
+                <span>to alex@nomad.me &nbsp;·&nbsp; <span id="email-sent-time">Just now</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="email-body">
+            <div class="email-tpl">
+              <div class="etpl-head">
+                <div class="elogo">NOM<em>Credits</em></div>
+                <div class="etag">Universal Nomad Currency</div>
+              </div>
+              <div class="etpl-body">
+                <p>Hi Alex 👋</p>
+                <h3>Your NOM Credits have arrived!</h3>
+                <p>Your <strong id="email-ticket-type">Visionary Pass</strong> purchase at <strong>Nomad Fest Da Nang</strong> has been confirmed. Your NOM Credits are now live in your wallet and ready to spend.</p>
+                <div class="nom-box">
+                  <div class="nb-amount" id="email-nom-amount">120</div>
+                  <div class="nb-unit">NOM Credits</div>
+                  <div class="nb-sub">alex@nomad.me &nbsp;·&nbsp; Nomad Fest Da Nang 2025</div>
+                </div>
+                <p>Use your credits on Da Nang side events, or save them for Lisbon, Bali, Mexico City and beyond — they never expire.</p>
+                <p style="font-size:13.5px;color:#374151;font-weight:600;margin-bottom:8px;">Available side events you can redeem now:</p>
+                <div class="etpl-events">
+                  <div class="etpl-ev"><span>🌅</span><span class="en">Sunset Networking</span><span class="ec">30 NOM</span></div>
+                  <div class="etpl-ev"><span>🏖️</span><span class="en">Beach Party</span><span class="ec">40 NOM</span></div>
+                  <div class="etpl-ev"><span>🚀</span><span class="en">Startup Mixer</span><span class="ec">25 NOM</span></div>
+                  <div class="etpl-ev"><span>🧘</span><span class="en">Sunrise Yoga</span><span class="ec">15 NOM</span></div>
+                  <div class="etpl-ev"><span>🍜</span><span class="en">Street Food Tour</span><span class="ec">20 NOM</span></div>
+                </div>
+                <button class="etpl-cta" onclick="switchTab('nom')">⬡ &nbsp; Open NOM Wallet &rarr;</button>
+              </div>
+              <div class="etpl-foot">
+                <p>NOM Credits · Universal currency for nomad events worldwide<br>You received this because you purchased a ticket through a NOM-partner event.<br><span style="color:#d1d5db;">Unsubscribe &nbsp;·&nbsp; Privacy Policy &nbsp;·&nbsp; nom.app</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /page-email -->
+
+
+    <!-- ████████████████████████████████████
+         TAB 3: NOM WALLET APP
+    █████████████████████████████████████ -->
+    <div class="tab-page" id="page-nom">
+      <nav class="nom-nav">
+        <div class="nom-nav-logo">
+          <div class="nhex">⬡</div>
+          NOM Credits
+        </div>
+        <div class="nom-nav-links">
+          <button class="nom-nav-link active">Wallet</button>
+          <button class="nom-nav-link">Events</button>
+          <button class="nom-nav-link">History</button>
+          <button class="nom-nav-link">Settings</button>
+        </div>
+        <div class="nom-user-pill">
+          <div class="nupa">🧳</div>
+          <span>Alex Nomad</span>
+        </div>
+      </nav>
+
+      <div class="nom-body">
+        <div class="nom-user-row">
+          <div class="nom-big-ava">🧳</div>
+          <div class="nom-uinfo">
+            <h2>Alex Nomad</h2>
+            <p>Global Nomad Member &nbsp;·&nbsp; alex@nomad.me</p>
+          </div>
+          <div class="nom-active-pill"><div class="nom-active-dot"></div> Active</div>
+        </div>
+
+        <div class="nom-bal-card">
+          <div class="nbg1"></div><div class="nbg2"></div><div class="nbg3"></div>
+          <div class="nom-bc">
+            <div class="nom-bc-lbl">Available Balance</div>
+            <div class="nom-bc-amt" id="nom-balance-display">0 <span class="nunit">NOM</span></div>
+            <div class="nom-bc-eq" id="nom-equiv">≈ $0.00 USD equivalent</div>
+            <div class="nom-bc-row">
+              <div class="nom-bc-stat"><div class="sv" id="nom-earned-stat">0</div><div class="sl">Total Earned</div></div>
+              <div class="nom-bc-stat"><div class="sv" id="nom-spent-stat">0</div><div class="sl">Total Spent</div></div>
+              <div class="nom-bc-prog">
+                <div class="plbl"><span>Credits used</span><span id="nom-prog-text">0 / 0 NOM</span></div>
+                <div class="pbar"><div class="pfill" id="nom-prog-fill" style="width:0%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nom-stats3">
+          <div class="nom-sc"><div class="scv" id="nom-events-count">0</div><div class="scl">Events Redeemed</div><div class="sct" id="nom-ev-trend"></div></div>
+          <div class="nom-sc"><div class="scv">🌍</div><div class="scl">Cities Valid</div><div class="sct">7 worldwide</div></div>
+          <div class="nom-sc"><div class="scv">∞</div><div class="scl">Credit Expiry</div><div class="sct">Never expire</div></div>
+        </div>
+
+        <div class="nom-sec-hdr">
+          <div class="nom-sec-title">Transaction History</div>
+          <div class="nom-sec-sub" id="nom-txn-count">No transactions</div>
+        </div>
+        <div class="nom-txn-list" id="nom-txn-list">
+          <div class="nom-txn-empty">No transactions yet.<br>Buy a ticket on Nomad Fest to get started.</div>
+        </div>
+
+        <div class="nom-partners" style="margin-top:26px;">
+          <div class="nom-sec-hdr" style="margin-bottom:10px;"><div class="nom-sec-title">Connected Event Partners</div></div>
+          <div class="nom-partner-row"><div class="npm-logo">🌴</div><div class="npm-info"><h5>Nomad Fest</h5><p>Official event partner</p></div><div class="npm-status con">Connected</div></div>
+          <div class="nom-partner-row"><div class="npm-logo">🏄</div><div class="npm-info"><h5>Bali Nomad Summit</h5><p>Regional partner</p></div><div class="npm-status con">Connected</div></div>
+          <div class="nom-partner-row"><div class="npm-logo">🏛️</div><div class="npm-info"><h5>Lisbon Digital Nomad Week</h5><p>Partnership pending</p></div><div class="npm-status pen">Pending</div></div>
+        </div>
+      </div>
+    </div><!-- /page-nom -->
+
+
+    <!-- ████████████████████████████████████
+         TAB 4: NOMAD FEST — SIDE EVENTS
+    █████████████████████████████████████ -->
+    <div class="tab-page" id="page-events">
+      <nav class="nf-nav">
+        <div class="nf-logo">Nomad<span>Fest</span></div>
+        <div class="nf-nav-links">
+          <a>About</a><a>Schedule</a><a>Speakers</a><a onclick="switchTab('nomad')">Tickets</a><a class="cur">Side Events</a>
+        </div>
+        <button class="nf-nav-cta">My Ticket</button>
+      </nav>
+
+      <div class="nf2-hero">
+        <div class="nf2-breadcrumb">Nomad Fest Da Nang &nbsp;/&nbsp; <span>Side Events</span></div>
+        <h1>Side Events & Experiences</h1>
+        <p>Redeem with NOM Credits — balance automatically synced from your NOM wallet.</p>
+      </div>
+
+      <!-- Live NOM balance bar -->
+      <div class="nf2-bal-bar">
+        <div>
+          <div class="blbl">Your NOM Balance</div>
+          <div class="bamt" id="events-balance"><span id="ev-bal-num">0</span><em>NOM Credits</em></div>
+        </div>
+        <div class="bpow">Powered by <strong>&nbsp;NOM Credits ⬡</strong></div>
+      </div>
+
+      <div class="nf2-section">
+        <div class="nf2-sec-label">Da Nang 2025</div>
+        <div class="nf2-sec-title">Available Side Events</div>
+        <div class="nf2-grid" id="nf2-events-grid"></div>
+      </div>
+
+      <div class="nf2-footer">
+        <div class="nf2-footer-logo">NOM⬡</div>
+        <p>Payments powered by NOM Credits — the universal nomad currency.</p>
+        <a onclick="switchTab('nom')">View your NOM Wallet →</a>
+      </div>
+    </div><!-- /page-events -->
+
+  </div><!-- /viewport -->
+</div><!-- /browser-shell -->
+
+<div id="toast-container"></div>
+
+<script>
+// ═══════════════════════════════════
+// SHARED STATE — "The Integration Layer"
+// ═══════════════════════════════════
+const state = {
+  credits: 0,
+  totalEarned: 0,
+  transactions: [],
+  ticketBought: false,
+  ticketType: null,
+  redeemedEvents: {},
+  eventsCount: 0,
+};
+
+const EVENTS = [
+  { id:'sunset',  emoji:'🌅', name:'Sunset Networking',  desc:'Rooftop mixer overlooking the Han River at golden hour',  time:'Day 1 · 6:00 PM', spots:'38 left', cost:30 },
+  { id:'beach',   emoji:'🏖️', name:'Beach Party',         desc:'Full moon bonfire at My Khe Beach with live DJ sets',     time:'Day 2 · 8:00 PM', spots:'12 left', cost:40 },
+  { id:'startup', emoji:'🚀', name:'Startup Mixer',       desc:'Pitch your ideas, connect with co-founders & investors',  time:'Day 2 · 3:00 PM', spots:'55 left', cost:25 },
+  { id:'yoga',    emoji:'🧘', name:'Sunrise Yoga',        desc:'Beachside breathwork session as the sun rises over Danang', time:'Day 3 · 6:00 AM', spots:'20 left', cost:15 },
+  { id:'food',    emoji:'🍜', name:'Street Food Tour',    desc:'Expert-guided walk through Da Nang\'s best street food',  time:'Day 3 · 7:00 PM', spots:'9 left',  cost:20 },
+];
+
+const URLS = {
+  nomad:  'nomadfest.io/da-nang/tickets',
+  email:  'mail.google.com/inbox',
+  nom:    'app.nom.credits/wallet',
+  events: 'nomadfest.io/da-nang/side-events',
+};
+
+// ═══════════════════════════════════
+// NAV
+// ═══════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.browser-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('address-url').textContent = URLS[name];
+  if (name === 'email') document.getElementById('email-notify').style.display = 'none';
+  if (name === 'nom') refreshNomWallet();
+  if (name === 'events') refreshEventsPage();
+}
+
+// ═══════════════════════════════════
+// BUY TICKET (NomadFest page)
+// ═══════════════════════════════════
+function buyTicket(type, amount) {
+  if (state.ticketBought) { showToast('⚠️ You already have a ticket!', 'error'); return; }
+
+  const mainBtn = document.getElementById('nf-btn-' + (type === 'vip' ? 'vip' : 'std'));
+  const otherBtn = document.getElementById('nf-btn-' + (type === 'vip' ? 'std' : 'vip'));
+  mainBtn.disabled = true;
+  mainBtn.innerHTML = '<span class="spinner"></span> Processing payment…';
+  otherBtn.disabled = true;
+
+  setTimeout(() => {
+    state.credits += amount;
+    state.totalEarned += amount;
+    state.ticketBought = true;
+    state.ticketType = type;
+    state.transactions.unshift({
+      type: 'credit', icon: type === 'vip' ? '✦' : '🌅',
+      label: (type === 'vip' ? 'Visionary Pass' : 'Explorer Pass') + ' — Nomad Fest Da Nang',
+      date: 'Just now · nomadfest.io', amount,
+    });
+
+    // Update NomadFest page
+    document.getElementById('nf-ticket-section').style.display = 'none';
+    document.getElementById('nf-nom-earned').innerHTML = `${amount} <small>NOM Credits</small>`;
+    document.getElementById('nf-success-wrap').style.display = 'block';
+
+    // Prepare email
+    document.getElementById('email-nom-amount').textContent = amount;
+    document.getElementById('email-ticket-type').textContent = type === 'vip' ? 'Visionary Pass' : 'Explorer Pass';
+
+    // Notify email tab
+    document.getElementById('email-notify').style.display = 'inline-block';
+    document.getElementById('inbox-badge').textContent = '1';
+
+    showToast(`🎉 ${amount} NOM Credits added to your wallet!`, 'success');
+  }, 2000);
+}
+
+function highlightEmail() {
+  document.querySelectorAll('.email-item').forEach(e => e.classList.remove('selected'));
+  document.getElementById('nom-email-item').classList.add('selected');
+}
+
+function selectEmail(type) {
+  document.querySelectorAll('.email-item').forEach(e => e.classList.remove('selected'));
+  if (type === 'nom') {
+    document.getElementById('nom-email-item').classList.add('selected');
+    document.getElementById('email-view-subject').textContent = '⬡ Your NOM Credits are ready!';
+  } else {
+    document.getElementById('email-view-subject').textContent = '🌴 Nomad Fest Da Nang — See you there!';
+  }
+}
+
+// ═══════════════════════════════════
+// NOM WALLET REFRESH
+// ═══════════════════════════════════
+function refreshNomWallet() {
+  const balEl = document.getElementById('nom-balance-display');
+  balEl.innerHTML = `${state.credits} <span class="nunit">NOM</span>`;
+  balEl.classList.add('pulse');
+  setTimeout(() => balEl.classList.remove('pulse'), 500);
+
+  document.getElementById('nom-equiv').textContent = `≈ $${(state.credits * 1.0).toFixed(2)} USD equivalent`;
+  document.getElementById('nom-earned-stat').textContent = state.totalEarned;
+
+  const spent = state.totalEarned - state.credits;
+  document.getElementById('nom-spent-stat').textContent = spent;
+  document.getElementById('nom-events-count').textContent = state.eventsCount;
+  document.getElementById('nom-ev-trend').textContent = state.eventsCount > 0 ? `+${state.eventsCount} this week` : '';
+
+  const pct = state.totalEarned > 0 ? Math.round((spent / state.totalEarned) * 100) : 0;
+  document.getElementById('nom-prog-fill').style.width = pct + '%';
+  document.getElementById('nom-prog-text').textContent = `${spent} / ${state.totalEarned} NOM`;
+
+  const list = document.getElementById('nom-txn-list');
+  const count = document.getElementById('nom-txn-count');
+  if (!state.transactions.length) {
+    list.innerHTML = '<div class="nom-txn-empty">No transactions yet.<br>Buy a ticket on Nomad Fest to get started.</div>';
+    count.textContent = 'No transactions';
+  } else {
+    count.textContent = `${state.transactions.length} transaction${state.transactions.length > 1 ? 's' : ''}`;
+    list.innerHTML = state.transactions.map(t => `
+      <div class="nom-txn-item">
+        <div class="nom-txn-ico ${t.type}">${t.icon}</div>
+        <div class="nom-txn-lbl"><h5>${t.label}</h5><p>${t.date}</p></div>
+        <div class="nom-txn-amt ${t.type}">${t.type === 'credit' ? '+' : '−'}${t.amount} NOM</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ═══════════════════════════════════
+// EVENTS PAGE REFRESH
+// ═══════════════════════════════════
+function refreshEventsPage() {
+  document.getElementById('ev-bal-num').textContent = state.credits;
+
+  const grid = document.getElementById('nf2-events-grid');
+  grid.innerHTML = EVENTS.map(ev => {
+    const done = state.redeemedEvents[ev.id];
+    const can = state.credits >= ev.cost;
+    let btnClass = 'nf2-redeem-btn';
+    let btnText = 'Redeem with NOM';
+    let disabled = '';
+    if (done) { btnClass += ' done'; btnText = '✓ Redeemed'; disabled = 'disabled'; }
+    else if (!can) { btnClass += ' insuf'; btnText = 'Not enough NOM'; disabled = 'disabled'; }
+
+    return `
+      <div class="nf2-card ${done ? 'redeemed' : ''}">
+        <div class="nf2-ev-emoji">${ev.emoji}</div>
+        <div class="nf2-ev-info">
+          <h3>${ev.name}</h3>
+          <p>${ev.desc}</p>
+          <div class="nf2-ev-meta">
+            <span>📅 ${ev.time}</span>
+            <span>👥 ${ev.spots}</span>
+          </div>
+        </div>
+        <div class="nf2-ev-right">
+          <div class="nf2-price"><div class="pm">${ev.cost}</div><div class="ps">NOM</div></div>
+          <button class="${btnClass}" onclick="redeemEvent('${ev.id}',${ev.cost},'${ev.name}','${ev.emoji}')" id="nf2-btn-${ev.id}" ${disabled}>${btnText}</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function redeemEvent(id, cost, name, emoji) {
+  if (state.redeemedEvents[id]) return;
+  if (state.credits < cost) { showToast('❌ Not enough NOM Credits!', 'error'); return; }
+
+  const btn = document.getElementById('nf2-btn-' + id);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+
+  setTimeout(() => {
+    state.credits -= cost;
+    state.redeemedEvents[id] = true;
+    state.eventsCount++;
+    state.transactions.unshift({
+      type: 'debit', icon: emoji,
+      label: name + ' — Nomad Fest Da Nang',
+      date: 'Just now · nomadfest.io', amount: cost,
+    });
+    refreshEventsPage();
+    showToast(`✅ ${name} redeemed!`, 'success');
+  }, 1000);
+}
+
+// ═══════════════════════════════════
+// TOAST
+// ═══════════════════════════════════
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'toastOut .3s ease forwards';
+    setTimeout(() => el.remove(), 300);
+  }, 3500);
+}
+
+// Init events page
+refreshEventsPage();
+</script>
+</body>
+</html>
