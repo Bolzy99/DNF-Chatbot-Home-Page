@@ -94,17 +94,3 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
-/* --- Make entire collapsed chatbot clickable --- */
-#chat-hub {
-  pointer-events: auto;
-}
-
-/* Disable all child interactions when collapsed */
-body.is-collapsed #chat-hub * {
-  pointer-events: none;
-}
-
-/* Re-enable everything when expanded */
-body.is-expanded #chat-hub * {
-  pointer-events: auto;
-}
