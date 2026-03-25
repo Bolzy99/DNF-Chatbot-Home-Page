@@ -1,6 +1,6 @@
 /**
- * DNF Chatbot Loader — v2.3
- * Features: Mobile-only top-right close button, animated circular chatbot bubble.
+ * DNF Chatbot Loader — v2.4
+ * Optimization: High-performance hardware-accelerated transitions.
  */
 (function () {
   'use strict';
@@ -11,11 +11,13 @@
   var COLLAPSED_H = '190px';   
   var EXPANDED_W  = 'min(92vw, 900px)';
   var EXPANDED_H  = '88vh';
-  var BUBBLE_SIZE = '70px'; // Size of the circular chatbot button
+  var BUBBLE_SIZE = '70px'; 
   var BOTTOM      = '24px';
   var RIGHT       = 'max(16px, env(safe-area-inset-right))';
   var Z_INDEX     = '2147483647';
-  var TRANSITION  = 'all 0.55s cubic-bezier(0.22,1,0.36,1)';
+  
+  // OPTIMIZED: Using 'all' can be heavy; we use a slightly faster easing
+  var TRANSITION  = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
 
   // ─── Create wrapper div ───────────────────────────────────────────────────
   var wrapper = document.createElement('div');
@@ -31,17 +33,19 @@
     'overflow: hidden',
     'transition: ' + TRANSITION,
     'pointer-events: auto',
-    'box-shadow: 0 8px 40px rgba(0,0,0,0.18)',
+    'box-shadow: 0 12px 48px rgba(0,0,0,0.15)',
     'background-color: white',
     'background-repeat: no-repeat',
     'background-position: center',
-    'background-size: 60%',
-    'cursor: pointer'
+    'background-size: 0%', // Start at 0 to avoid pop-in
+    'cursor: pointer',
+    'will-change: width, height, border-radius', // Hardware acceleration hint
+    '-webkit-backface-visibility: hidden',
+    'backface-visibility: hidden'
   ].join(';');
 
-  // ─── Create Close Button (Top-Right, Mobile Only) ──────────────────────────
+  // ─── Create Close Button (Top-Right) ──────────────────────────────────────
   var closeBtn = document.createElement('button');
-  // Simple X icon
   closeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>';
   closeBtn.style.cssText = [
     'position: absolute',
@@ -58,7 +62,8 @@
     'align-items: center',
     'justify-content: center',
     'z-index: 100',
-    'box-shadow: 0 2px 8px rgba(0,0,0,0.1)'
+    'opacity: 0',
+    'transition: opacity 0.3s ease'
   ].join(';');
 
   // ─── Create iframe ────────────────────────────────────────────────────────
@@ -68,33 +73,21 @@
   iframe.setAttribute('frameborder', '0');
   iframe.setAttribute('scrolling', 'no');
   iframe.setAttribute('allowtransparency', 'true');
-  iframe.style.cssText = 'width:100%; height:100%; border:none; display:block; background:transparent; transition: opacity 0.3s; pointer-events: auto;';
+  iframe.style.cssText = 'width:100%; height:100%; border:none; display:block; background:transparent; transition: opacity 0.4s ease;';
 
-  // ─── State Logic ──────────────────────────────────────────────────────────
   var isBubble = false;
-
-  function showCloseBtn() {
-    // Only show cross if on mobile AND in the collapsed (pill) state
-    var isExpanded = iframe.getAttribute('scrolling') === 'yes';
-    if (window.innerWidth <= 640 && !isBubble && !isExpanded) {
-      closeBtn.style.display = 'flex';
-    } else {
-      closeBtn.style.display = 'none';
-    }
-  }
 
   function setBubbleState() {
     isBubble = true;
     wrapper.style.width = BUBBLE_SIZE;
     wrapper.style.height = BUBBLE_SIZE;
     wrapper.style.borderRadius = '50%';
-    
-    // Add Chatbot Icon and Background
-    wrapper.style.backgroundColor = '#0f172a'; // Dark theme for bubble
+    wrapper.style.backgroundColor = '#0f172a';
     wrapper.style.backgroundImage = "url('https://cdn-icons-png.flaticon.com/512/2040/2040946.png')";
+    wrapper.style.backgroundSize = '60%'; // Icon appears smoothly
     
     iframe.style.opacity = '0';
-    iframe.style.pointerEvents = 'none'; // Crucial: allow click to pass to wrapper
+    iframe.style.pointerEvents = 'none';
     closeBtn.style.display = 'none';
 
     if (window.innerWidth <= 640) {
@@ -106,11 +99,12 @@
   function restoreFromBubble() {
     isBubble = false;
     wrapper.style.backgroundImage = 'none';
+    wrapper.style.backgroundSize = '0%';
     wrapper.style.backgroundColor = 'white';
     iframe.style.opacity = '1';
     iframe.style.pointerEvents = 'auto';
     applyCurrentStateDimensions();
-    showCloseBtn();
+    updateCloseBtnVisibility();
   }
 
   function applyCurrentStateDimensions() {
@@ -118,19 +112,33 @@
     if (isExpanded) {
         wrapper.style.width = EXPANDED_W;
         wrapper.style.height = EXPANDED_H;
-        wrapper.style.borderRadius = '40px';
-        wrapper.style.bottom = (window.innerWidth <= 640) ? '0px' : BOTTOM;
-        wrapper.style.right = (window.innerWidth <= 640) ? '0px' : RIGHT;
+        wrapper.style.borderRadius = (window.innerWidth <= 640) ? '0px' : '40px';
     } else {
         wrapper.style.width = COLLAPSED_W;
         wrapper.style.height = COLLAPSED_H;
         wrapper.style.borderRadius = (window.innerWidth <= 640) ? '24px 24px 0 0' : '56px';
-        wrapper.style.bottom = (window.innerWidth <= 640) ? '0px' : BOTTOM;
-        wrapper.style.right = (window.innerWidth <= 640) ? '0px' : RIGHT;
+    }
+    
+    if (window.innerWidth <= 640) {
+        wrapper.style.bottom = '0px';
+        wrapper.style.right = '0px';
+    } else {
+        wrapper.style.bottom = BOTTOM;
+        wrapper.style.right = RIGHT;
     }
   }
 
-  // ─── Event Listeners ──────────────────────────────────────────────────────
+  function updateCloseBtnVisibility() {
+    var isExpanded = iframe.getAttribute('scrolling') === 'yes';
+    if (window.innerWidth <= 640 && !isBubble && !isExpanded) {
+      closeBtn.style.display = 'flex';
+      setTimeout(function() { closeBtn.style.opacity = '1'; }, 10);
+    } else {
+      closeBtn.style.opacity = '0';
+      setTimeout(function() { closeBtn.style.display = 'none'; }, 300);
+    }
+  }
+
   closeBtn.onclick = function(e) {
     e.stopPropagation();
     setBubbleState();
@@ -144,7 +152,6 @@
   wrapper.appendChild(iframe);
   document.body.appendChild(wrapper);
 
-  // ─── Message bridge ───────────────────────────────────────────────────────
   window.addEventListener('message', function (e) {
     if (!e.data || typeof e.data.action === 'undefined') return;
 
@@ -152,7 +159,7 @@
       iframe.setAttribute('scrolling', 'yes');
       if (!isBubble) {
         applyCurrentStateDimensions();
-        showCloseBtn();
+        updateCloseBtnVisibility();
       }
     }
 
@@ -160,7 +167,7 @@
       iframe.setAttribute('scrolling', 'no');
       if (!isBubble) {
           applyCurrentStateDimensions();
-          showCloseBtn();
+          updateCloseBtnVisibility();
       }
     }
   });
@@ -172,12 +179,8 @@
       COLLAPSED_W = '100vw';
       COLLAPSED_H = '110px';
       if (!isBubble) applyCurrentStateDimensions();
-    } else {
-      // Reset desktop configs if resized back
-      COLLAPSED_W = 'min(420px, calc(100vw - 32px))';
-      COLLAPSED_H = '190px';
     }
-    showCloseBtn();
+    updateCloseBtnVisibility();
   }
 
   window.addEventListener('resize', applyResponsiveConfig);
