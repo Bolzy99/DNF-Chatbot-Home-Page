@@ -13,7 +13,7 @@
   var EXPANDED_W  = 'min(92vw, 900px)';
   var EXPANDED_H  = '88vh';
   var BOTTOM      = '24px';
-  var RIGHT       = '16px';
+  var RIGHT       = 'max(16px, env(safe-area-inset-right))';
   var Z_INDEX     = '2147483647'; // max z-index, above everything
   var TRANSITION  = 'width 0.55s cubic-bezier(0.22,1,0.36,1), height 0.55s cubic-bezier(0.22,1,0.36,1), border-radius 0.55s ease';
 
@@ -33,6 +33,7 @@
     'pointer-events: auto',   // wrapper is clickable
     'box-shadow: 0 8px 40px rgba(0,0,0,0.18)',
   ].join(';');
+  wrapper.style.maxWidth = '100vw';
 
   // ─── Create iframe ────────────────────────────────────────────────────────
   var iframe = document.createElement('iframe');
