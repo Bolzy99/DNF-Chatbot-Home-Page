@@ -1,6 +1,6 @@
 /**
- * DNF Chatbot Loader — v2.2
- * Features: Mobile-only close button in collapsed state, shrinking to a circular bubble.
+ * DNF Chatbot Loader — v2.3
+ * Features: Mobile-only top-right close button, animated circular chatbot bubble.
  */
 (function () {
   'use strict';
@@ -11,7 +11,7 @@
   var COLLAPSED_H = '190px';   
   var EXPANDED_W  = 'min(92vw, 900px)';
   var EXPANDED_H  = '88vh';
-  var BUBBLE_SIZE = '66px'; // The circular state size
+  var BUBBLE_SIZE = '70px'; // Size of the circular chatbot button
   var BOTTOM      = '24px';
   var RIGHT       = 'max(16px, env(safe-area-inset-right))';
   var Z_INDEX     = '2147483647';
@@ -32,28 +32,33 @@
     'transition: ' + TRANSITION,
     'pointer-events: auto',
     'box-shadow: 0 8px 40px rgba(0,0,0,0.18)',
-    'background: white' 
+    'background-color: white',
+    'background-repeat: no-repeat',
+    'background-position: center',
+    'background-size: 60%',
+    'cursor: pointer'
   ].join(';');
 
   // ─── Create Close Button (Top-Right, Mobile Only) ──────────────────────────
   var closeBtn = document.createElement('button');
+  // Simple X icon
   closeBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>';
   closeBtn.style.cssText = [
     'position: absolute',
     'top: 12px',
     'right: 12px',
-    'width: 30px',
-    'height: 30px',
+    'width: 32px',
+    'height: 32px',
     'border-radius: 50%',
     'background: #f1f5f9',
     'border: none',
     'color: #64748b',
     'cursor: pointer',
-    'display: none', // Controlled by media query logic
+    'display: none', 
     'align-items: center',
     'justify-content: center',
     'z-index: 100',
-    'box-shadow: 0 2px 8px rgba(0,0,0,0.05)'
+    'box-shadow: 0 2px 8px rgba(0,0,0,0.1)'
   ].join(';');
 
   // ─── Create iframe ────────────────────────────────────────────────────────
@@ -63,68 +68,76 @@
   iframe.setAttribute('frameborder', '0');
   iframe.setAttribute('scrolling', 'no');
   iframe.setAttribute('allowtransparency', 'true');
-  iframe.style.cssText = 'width:100%; height:100%; border:none; display:block; background:transparent; transition: opacity 0.3s;';
+  iframe.style.cssText = 'width:100%; height:100%; border:none; display:block; background:transparent; transition: opacity 0.3s; pointer-events: auto;';
 
-  // ─── State Helpers ────────────────────────────────────────────────────────
+  // ─── State Logic ──────────────────────────────────────────────────────────
   var isBubble = false;
 
   function showCloseBtn() {
-    if (window.innerWidth <= 640 && !isBubble) {
+    // Only show cross if on mobile AND in the collapsed (pill) state
+    var isExpanded = iframe.getAttribute('scrolling') === 'yes';
+    if (window.innerWidth <= 640 && !isBubble && !isExpanded) {
       closeBtn.style.display = 'flex';
     } else {
       closeBtn.style.display = 'none';
     }
   }
 
-  function toggleBubble(e) {
-    if (e) e.stopPropagation();
-    isBubble = !isBubble;
+  function setBubbleState() {
+    isBubble = true;
+    wrapper.style.width = BUBBLE_SIZE;
+    wrapper.style.height = BUBBLE_SIZE;
+    wrapper.style.borderRadius = '50%';
+    
+    // Add Chatbot Icon and Background
+    wrapper.style.backgroundColor = '#0f172a'; // Dark theme for bubble
+    wrapper.style.backgroundImage = "url('https://cdn-icons-png.flaticon.com/512/2040/2040946.png')";
+    
+    iframe.style.opacity = '0';
+    iframe.style.pointerEvents = 'none'; // Crucial: allow click to pass to wrapper
+    closeBtn.style.display = 'none';
 
-    if (isBubble) {
-      wrapper.style.width = BUBBLE_SIZE;
-      wrapper.style.height = BUBBLE_SIZE;
-      wrapper.style.borderRadius = '50%';
-      iframe.style.opacity = '0';
-      closeBtn.style.display = 'none';
-      // Adjust positioning for bubble on mobile if needed
-      if (window.innerWidth <= 640) {
-        wrapper.style.bottom = '20px';
-        wrapper.style.right = '20px';
-      }
-    } else {
-      applyCurrentStateDimensions();
-      iframe.style.opacity = '1';
-      showCloseBtn();
+    if (window.innerWidth <= 640) {
+      wrapper.style.bottom = '24px';
+      wrapper.style.right = '24px';
     }
   }
 
+  function restoreFromBubble() {
+    isBubble = false;
+    wrapper.style.backgroundImage = 'none';
+    wrapper.style.backgroundColor = 'white';
+    iframe.style.opacity = '1';
+    iframe.style.pointerEvents = 'auto';
+    applyCurrentStateDimensions();
+    showCloseBtn();
+  }
+
   function applyCurrentStateDimensions() {
-    // Check if we are currently expanded or collapsed based on iframe scrolling
     var isExpanded = iframe.getAttribute('scrolling') === 'yes';
     if (isExpanded) {
         wrapper.style.width = EXPANDED_W;
         wrapper.style.height = EXPANDED_H;
         wrapper.style.borderRadius = '40px';
+        wrapper.style.bottom = (window.innerWidth <= 640) ? '0px' : BOTTOM;
+        wrapper.style.right = (window.innerWidth <= 640) ? '0px' : RIGHT;
     } else {
         wrapper.style.width = COLLAPSED_W;
         wrapper.style.height = COLLAPSED_H;
-        wrapper.style.borderRadius = window.innerWidth <= 640 ? '24px 24px 0 0' : '56px';
-    }
-    
-    if (window.innerWidth <= 640) {
-        wrapper.style.bottom = isExpanded ? '0px' : '0px';
-        wrapper.style.right = '0px';
-    } else {
-        wrapper.style.bottom = BOTTOM;
-        wrapper.style.right = RIGHT;
+        wrapper.style.borderRadius = (window.innerWidth <= 640) ? '24px 24px 0 0' : '56px';
+        wrapper.style.bottom = (window.innerWidth <= 640) ? '0px' : BOTTOM;
+        wrapper.style.right = (window.innerWidth <= 640) ? '0px' : RIGHT;
     }
   }
 
   // ─── Event Listeners ──────────────────────────────────────────────────────
-  closeBtn.onclick = toggleBubble;
+  closeBtn.onclick = function(e) {
+    e.stopPropagation();
+    setBubbleState();
+  };
   
   wrapper.onclick = function() {
-    if (isBubble) toggleBubble();
+    if (isBubble) restoreFromBubble();
   };
 
   wrapper.appendChild(closeBtn);
@@ -138,8 +151,8 @@
     if (e.data.action === 'expand') {
       iframe.setAttribute('scrolling', 'yes');
       if (!isBubble) {
-          applyCurrentStateDimensions();
-          closeBtn.style.display = 'none'; // Hide when full screen
+        applyCurrentStateDimensions();
+        showCloseBtn();
       }
     }
 
@@ -152,7 +165,6 @@
     }
   });
 
-  // ─── Mobile Logic ────────────────────────────────────────────────────────
   function applyResponsiveConfig() {
     if (window.innerWidth <= 640) {
       EXPANDED_W = '100vw';
@@ -160,6 +172,10 @@
       COLLAPSED_W = '100vw';
       COLLAPSED_H = '110px';
       if (!isBubble) applyCurrentStateDimensions();
+    } else {
+      // Reset desktop configs if resized back
+      COLLAPSED_W = 'min(420px, calc(100vw - 32px))';
+      COLLAPSED_H = '190px';
     }
     showCloseBtn();
   }
