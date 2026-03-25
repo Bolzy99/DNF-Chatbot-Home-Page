@@ -326,10 +326,11 @@ function animate() {
 init(); animate();
 window.addEventListener('resize', init);
 // 👉 Open chatbot when clicking ANYWHERE in collapsed state
-chatHub.addEventListener('click', (e) => {
-    if (isCollapsed) {
-        // Prevent weird edge cases
-        if (e.target.closest('button, a, input, textarea')) return;
+document.addEventListener('click', (e) => {
+    if (!isCollapsed) return;
+
+    // Only trigger if click happened inside chatbot
+    if (chatHub.contains(e.target)) {
         expand();
     }
 });
