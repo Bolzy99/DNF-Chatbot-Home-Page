@@ -199,7 +199,6 @@
         <div class="aurora-glow bottom-0 right-0" style="background:radial-gradient(circle,rgba(30,58,138,0.04) 0%,transparent 70%);"></div>
 
         <div class="flex flex-col">
-            <!-- Status bar (expanded only) -->
             <div id="status-bar" class="uppercase">
                 <div class="flex items-center gap-4">
                     <span id="live-clock">--:-- --</span>
@@ -215,7 +214,6 @@
                 </div>
             </div>
 
-            <!-- Header -->
             <header class="relative z-50 flex items-center justify-between w-full p-5 pb-2">
                 <div class="flex items-center gap-4">
                     <div class="avatar-box shadow-xl">
@@ -234,7 +232,6 @@
             </header>
         </div>
 
-        <!-- Chat history -->
         <div id="history-container" class="custom-scrollbar px-8 md:px-12">
             <div id="chat-history" class="flex flex-col gap-6 pb-4"></div>
             <div id="typing" class="hidden pb-8">
@@ -245,13 +242,11 @@
             </div>
         </div>
 
-        <!-- Closed-state text pill -->
         <div id="text-stage">
             <div id="hook-text" class="font-bold text-slate-800 text-center leading-snug shimmer-word"></div>
             <div id="sub-text" class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-1.5 text-center"></div>
         </div>
 
-        <!-- Input area -->
         <div class="input-container-wrapper">
             <div id="chips-area" class="flex gap-2.5 overflow-x-auto no-scrollbar mb-4 opacity-0 h-0 transition-all duration-700">
                 <div class="chip" onclick="handleChip('Things to do in Da Nang')">Things to do in Da Nang</div>
@@ -260,14 +255,14 @@
                 <div class="chip" onclick="handleChip('I need help finding people')">Find People</div>
             </div>
 
-            <div class="max-w-3xl mx-auto relative">
+            <form id="chat-form" class="max-w-3xl mx-auto relative">
                 <div class="flex items-center bg-white border border-slate-200/60 rounded-full shadow-lg focus-within:border-amber-400 transition-all duration-300">
                     <input type="text" id="user-input" autocomplete="off"
                            placeholder="Ask me anything…"
                            class="w-full bg-transparent py-4 px-8 text-base focus:outline-none placeholder-slate-400 text-slate-900">
                     <div class="relative flex items-center">
                         <div class="input-pulse" id="cta-glow"></div>
-                        <button id="submit-btn" type="button"
+                        <button id="submit-btn" type="submit"
                                 class="mr-2 p-3 bg-slate-900 text-amber-400 rounded-full hover:scale-105 active:scale-95 transition-all relative z-10">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -275,7 +270,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
