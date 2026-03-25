@@ -47,6 +47,7 @@ const chipsArea        = document.getElementById('chips-area');
 const liveClock        = document.getElementById('live-clock');
 
 const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+let isCollapsed = true;
 
 // --- UI UTILS ---
 const scrollToBottom = () => {
@@ -87,13 +88,14 @@ updateClock();
 
 // --- 3. EXPANSION LOGIC ---
 const expand = () => {
-    if (chatHub.classList.contains('is-expanded')) return;
+    if (!isCollapsed) return;
+
+    isCollapsed = false;
 
     chatHub.classList.add('is-expanded');
     document.body.classList.remove('is-collapsed');
     document.body.classList.add('is-expanded');
 
-    // ← Tell the parent loader to grow the iframe
     window.parent.postMessage({ action: 'expand' }, '*');
 
     minimizeBtn.classList.remove('hidden');
@@ -124,13 +126,13 @@ const expand = () => {
         setTimeout(() => addMessage("Welcome to Nomad Intelligence. I'm here to curate your network, navigate the schedule, and reveal Da Nang's finest. What can I help you with?", 'bot'), 1000);
     }
 };
-
 const collapse = () => {
+    isCollapsed = true;
+
     chatHub.classList.remove('is-expanded');
     document.body.classList.remove('is-expanded');
     document.body.classList.add('is-collapsed');
 
-    // ← Tell the parent loader to shrink the iframe
     window.parent.postMessage({ action: 'collapse' }, '*');
 
     minimizeBtn.classList.add('hidden');
@@ -323,6 +325,13 @@ function animate() {
 
 init(); animate();
 window.addEventListener('resize', init);
-
+// 👉 Open chatbot when clicking ANYWHERE in collapsed state
+chatHub.addEventListener('click', (e) => {
+    if (isCollapsed) {
+        // Prevent weird edge cases
+        if (e.target.closest('button, a, input, textarea')) return;
+        expand();
+    }
+});
 // Init collapsed body state
 document.body.classList.add('is-collapsed');
