@@ -94,3 +94,11 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+/* Add this to your CSS */
+#chat-hub {
+    cursor: pointer;
+}
+
+#chat-hub.is-expanded {
+    cursor: default; /* Returns to normal when open */
+}
