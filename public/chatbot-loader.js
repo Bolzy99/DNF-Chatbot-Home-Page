@@ -8,12 +8,12 @@
 
   // ─── Config ───────────────────────────────────────────────────────────────
   var CHATBOT_URL = 'https://dnfchatbot.bolzard.com/'; // ← change to your hosted URL
-  var COLLAPSED_W = '420px';
+  var COLLAPSED_W = 'min(420px, calc(100vw - 32px))';
   var COLLAPSED_H = '100px';   // height in closed state — just enough for the pill
-  var EXPANDED_W  = 'min(94vw, 960px)';
+  var EXPANDED_W  = 'min(92vw, 900px)';
   var EXPANDED_H  = '88vh';
   var BOTTOM      = '24px';
-  var RIGHT       = '24px';
+  var RIGHT       = '16px';
   var Z_INDEX     = '2147483647'; // max z-index, above everything
   var TRANSITION  = 'width 0.55s cubic-bezier(0.22,1,0.36,1), height 0.55s cubic-bezier(0.22,1,0.36,1), border-radius 0.55s ease';
 
