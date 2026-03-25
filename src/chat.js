@@ -1,8 +1,7 @@
 import './style.css'
 /**
  * DNF Chatbot — Concierge Core v2.0
- * Key change: postMessage('expand' / 'collapse') drives iframe resize from parent loader.
- * The iframe itself no longer needs to be large when closed.
+ * Updated: Universal click-to-expand + Submit button fix.
  */
 
 // --- 0. INJECT REVEAL ANIMATION STYLES ---
@@ -22,12 +21,13 @@ style.textContent = `
         white-space: pre-wrap;
         animation: geminiReveal 0.4s ease-out forwards;
     }
-    /* Collapsed pill: hide overflow, ensure body fits snugly */
     body.is-collapsed {
         overflow: hidden;
+        cursor: pointer; /* Visual cue that the pill is clickable */
     }
     body.is-expanded {
-        overflow: hidden; /* iframe handles its own scroll */
+        overflow: hidden;
+        cursor: default;
     }
 `;
 document.head.appendChild(style);
@@ -40,6 +40,7 @@ const textStage        = document.getElementById('text-stage');
 const chatHistory      = document.getElementById('chat-history');
 const chatForm         = document.getElementById('chat-form');
 const userInput        = document.getElementById('user-input');
+const submitBtn       = document.getElementById('submit-btn'); // Added this
 const minimizeBtn      = document.getElementById('minimize-btn');
 const historyContainer = document.getElementById('history-container');
 const typingIndicator  = document.getElementById('typing');
@@ -91,7 +92,6 @@ const expand = () => {
     if (!isCollapsed) return;
 
     isCollapsed = false;
-
     chatHub.classList.add('is-expanded');
     document.body.classList.remove('is-collapsed');
     document.body.classList.add('is-expanded');
@@ -126,9 +126,9 @@ const expand = () => {
         setTimeout(() => addMessage("Welcome to Nomad Intelligence. I'm here to curate your network, navigate the schedule, and reveal Da Nang's finest. What can I help you with?", 'bot'), 1000);
     }
 };
+
 const collapse = () => {
     isCollapsed = true;
-
     chatHub.classList.remove('is-expanded');
     document.body.classList.remove('is-expanded');
     document.body.classList.add('is-collapsed');
@@ -144,15 +144,22 @@ const collapse = () => {
     if (glow) glow.style.display = 'block';
 };
 
-// Bind expand to the entire container
+// --- CLICK HANDLERS ---
+
+// 1. Expand when clicking anywhere on the chatHub while collapsed
 chatHub.addEventListener('click', () => {
     if (isCollapsed) expand();
 });
 
-// Ensure minimize stops event bubbling so it doesn't re-trigger the expand click
+// 2. Prevent the minimize click from re-expanding the bot immediately
 minimizeBtn.addEventListener('click', (e) => { 
     e.stopPropagation(); 
     collapse(); 
+});
+
+// 3. FIX: Manual trigger for the submit button (since it's type="button")
+submitBtn.addEventListener('click', () => {
+    chatForm.requestSubmit(); 
 });
 
 // --- 4. MESSAGE ENGINE ---
@@ -332,6 +339,4 @@ function animate() {
 
 init(); animate();
 window.addEventListener('resize', init);
-
-// Init collapsed body state
 document.body.classList.add('is-collapsed');
