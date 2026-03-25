@@ -9,7 +9,7 @@
   // ─── Config ───────────────────────────────────────────────────────────────
   var CHATBOT_URL = 'https://dnfchatbot.bolzard.com/'; // ← change to your hosted URL
   var COLLAPSED_W = 'min(420px, calc(100vw - 32px))';
-  var COLLAPSED_H = '170px';   // height in closed state — just enough for the pill
+  var COLLAPSED_H = '190px';   // height in closed state — just enough for the pill
   var EXPANDED_W  = 'min(92vw, 900px)';
   var EXPANDED_H  = '88vh';
   var BOTTOM      = '24px';
