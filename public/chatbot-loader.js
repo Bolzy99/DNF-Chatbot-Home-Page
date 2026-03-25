@@ -91,7 +91,7 @@
       BOTTOM     = '0px';
       RIGHT      = '0px';
       COLLAPSED_W = '100vw';
-      COLLAPSED_H = '110px';
+      COLLAPSED_H = '90px';
       wrapper.style.width  = COLLAPSED_W;
       wrapper.style.height = COLLAPSED_H;
       wrapper.style.bottom = BOTTOM;
