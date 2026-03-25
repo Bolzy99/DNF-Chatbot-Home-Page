@@ -7,7 +7,7 @@
   'use strict';
 
   // ─── Config ───────────────────────────────────────────────────────────────
-  var CHATBOT_URL = 'https://YOUR_CHATBOT_DOMAIN/'; // ← change to your hosted URL
+  var CHATBOT_URL = 'https://dnfchatbot.bolzard.com'; // ← change to your hosted URL
   var COLLAPSED_W = '420px';
   var COLLAPSED_H = '100px';   // height in closed state — just enough for the pill
   var EXPANDED_W  = 'min(94vw, 960px)';
@@ -56,7 +56,7 @@
   window.addEventListener('message', function (e) {
     // Only trust messages from our chatbot origin
     // Loosened to '*' for flexibility; tighten in production:
-    // if (e.origin !== 'https://YOUR_CHATBOT_DOMAIN') return;
+    // if (e.origin !== 'https://dnfchatbot.bolzard.com') return;
 
     if (!e.data || typeof e.data.action === 'undefined') return;
 
