@@ -144,9 +144,16 @@ const collapse = () => {
     if (glow) glow.style.display = 'block';
 };
 
-userInput.addEventListener('focus', expand);
-userInput.addEventListener('click', expand);
-minimizeBtn.addEventListener('click', (e) => { e.stopPropagation(); collapse(); });
+// Bind expand to the entire container
+chatHub.addEventListener('click', () => {
+    if (isCollapsed) expand();
+});
+
+// Ensure minimize stops event bubbling so it doesn't re-trigger the expand click
+minimizeBtn.addEventListener('click', (e) => { 
+    e.stopPropagation(); 
+    collapse(); 
+});
 
 // --- 4. MESSAGE ENGINE ---
 const addMessage = (text, sender = 'bot') => {
@@ -325,14 +332,6 @@ function animate() {
 
 init(); animate();
 window.addEventListener('resize', init);
-// 👉 Open chatbot when clicking ANYWHERE in collapsed state
-document.addEventListener('click', (e) => {
-    if (!isCollapsed) return;
 
-    // Only trigger if click happened inside chatbot
-    if (chatHub.contains(e.target)) {
-        expand();
-    }
-});
 // Init collapsed body state
 document.body.classList.add('is-collapsed');
