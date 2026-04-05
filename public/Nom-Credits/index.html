@@ -60,7 +60,6 @@ html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif;
 
 /* ════════════════════════════════════════════
    TAB 1 — NOMAD FEST TICKETS PAGE
-   Aesthetic: Warm editorial travel, Playfair headlines
 ════════════════════════════════════════════ */
 #page-nomad { background: #FFFDF8; }
 
@@ -198,7 +197,6 @@ html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif;
 
 /* ════════════════════════════════════════════
    TAB 3 — NOM APP (WALLET)
-   Dark premium fintech
 ════════════════════════════════════════════ */
 #page-nom { background: #0F1117; }
 .nom-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 68px; border-bottom: 1px solid rgba(255,255,255,.06); background: rgba(15,17,23,.96); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 10; }
@@ -272,7 +270,6 @@ html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif;
 
 /* ════════════════════════════════════════════
    TAB 4 — NOMAD FEST SIDE EVENTS
-   Same NomadFest brand, different page
 ════════════════════════════════════════════ */
 #page-events { background: #FFFDF8; }
 
@@ -420,15 +417,15 @@ html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif;
               <div class="nf-ticket-badge std">Standard</div>
               <h3>Explorer Pass</h3>
               <div class="nf-ticket-price"><sup>$</sup>99</div>
-              <div class="nf-nom-reward">⬡ &nbsp; Earn <span class="nval">&nbsp;50 NOM Credits</span></div>
+              <div class="nf-nom-reward">⬡ &nbsp; Earn <span class="nval">&nbsp;990 NOM Credits</span></div>
             </div>
             <div class="nf-ticket-body">
               <ul class="nf-perks">
                 <li>Main stage & all keynotes</li>
                 <li>Networking lounges</li>
-                <li>50 NOM for side events</li>
+                <li>990 NOM for side events</li>
               </ul>
-              <button class="nf-buy-btn std" id="nf-btn-std" onclick="buyTicket('standard',50)">Buy Explorer Pass — $99</button>
+              <button class="nf-buy-btn std" id="nf-btn-std" onclick="buyTicket('standard',990)">Buy Explorer Pass — $99</button>
             </div>
           </div>
           <!-- VIP -->
@@ -438,15 +435,15 @@ html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif;
               <div class="nf-ticket-badge vip">VIP ✦</div>
               <h3>Visionary Pass</h3>
               <div class="nf-ticket-price"><sup>$</sup>199</div>
-              <div class="nf-nom-reward">⬡ &nbsp; Earn <span class="nval">&nbsp;120 NOM Credits</span></div>
+              <div class="nf-nom-reward">⬡ &nbsp; Earn <span class="nval">&nbsp;1,990 NOM Credits</span></div>
             </div>
             <div class="nf-ticket-body">
               <ul class="nf-perks">
                 <li>All Explorer benefits</li>
                 <li>VIP lounge & priority seating</li>
-                <li>120 NOM, valid globally</li>
+                <li>1,990 NOM, valid globally</li>
               </ul>
-              <button class="nf-buy-btn vip-btn" id="nf-btn-vip" onclick="buyTicket('vip',120)">Buy Visionary Pass — $199</button>
+              <button class="nf-buy-btn vip-btn" id="nf-btn-vip" onclick="buyTicket('vip',1990)">Buy Visionary Pass — $199</button>
             </div>
           </div>
         </div>
@@ -458,7 +455,7 @@ html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif;
           <div style="font-size:54px;">🎉</div>
           <h3>Payment Confirmed!</h3>
           <p>Your Nomad Fest ticket is ready. Your NOM Credits have been dispatched to your wallet:</p>
-          <div class="nom-earned" id="nf-nom-earned">120 <small>NOM Credits</small></div>
+          <div class="nom-earned" id="nf-nom-earned">1,990 <small>NOM Credits</small></div>
           <p>We've sent a confirmation to your inbox with full details.</p>
           <div class="success-actions">
             <button class="sa-dark" onclick="switchTab('email');highlightEmail()">📧 Check Email</button>
@@ -543,18 +540,18 @@ html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif;
                 <h3>Your NOM Credits have arrived!</h3>
                 <p>Your <strong id="email-ticket-type">Visionary Pass</strong> purchase at <strong>Nomad Fest Da Nang</strong> has been confirmed. Your NOM Credits are now live in your wallet and ready to spend.</p>
                 <div class="nom-box">
-                  <div class="nb-amount" id="email-nom-amount">120</div>
+                  <div class="nb-amount" id="email-nom-amount">1,990</div>
                   <div class="nb-unit">NOM Credits</div>
                   <div class="nb-sub">alex@nomad.me &nbsp;·&nbsp; Nomad Fest Da Nang 2025</div>
                 </div>
                 <p>Use your credits on Da Nang side events, or save them for Lisbon, Bali, Mexico City and beyond — they never expire.</p>
                 <p style="font-size:13.5px;color:#374151;font-weight:600;margin-bottom:8px;">Available side events you can redeem now:</p>
                 <div class="etpl-events">
-                  <div class="etpl-ev"><span>🌅</span><span class="en">Sunset Networking</span><span class="ec">30 NOM</span></div>
-                  <div class="etpl-ev"><span>🏖️</span><span class="en">Beach Party</span><span class="ec">40 NOM</span></div>
-                  <div class="etpl-ev"><span>🚀</span><span class="en">Startup Mixer</span><span class="ec">25 NOM</span></div>
-                  <div class="etpl-ev"><span>🧘</span><span class="en">Sunrise Yoga</span><span class="ec">15 NOM</span></div>
-                  <div class="etpl-ev"><span>🍜</span><span class="en">Street Food Tour</span><span class="ec">20 NOM</span></div>
+                  <div class="etpl-ev"><span>🌅</span><span class="en">Sunset Networking</span><span class="ec">300 NOM</span></div>
+                  <div class="etpl-ev"><span>🏖️</span><span class="en">Beach Party</span><span class="ec">400 NOM</span></div>
+                  <div class="etpl-ev"><span>🚀</span><span class="en">Startup Mixer</span><span class="ec">250 NOM</span></div>
+                  <div class="etpl-ev"><span>🧘</span><span class="en">Sunrise Yoga</span><span class="ec">150 NOM</span></div>
+                  <div class="etpl-ev"><span>🍜</span><span class="en">Street Food Tour</span><span class="ec">200 NOM</span></div>
                 </div>
                 <button class="etpl-cta" onclick="switchTab('nom')">⬡ &nbsp; Open NOM Wallet &rarr;</button>
               </div>
@@ -700,11 +697,11 @@ const state = {
 };
 
 const EVENTS = [
-  { id:'sunset',  emoji:'🌅', name:'Sunset Networking',  desc:'Rooftop mixer overlooking the Han River at golden hour',  time:'Day 1 · 6:00 PM', spots:'38 left', cost:30 },
-  { id:'beach',   emoji:'🏖️', name:'Beach Party',         desc:'Full moon bonfire at My Khe Beach with live DJ sets',     time:'Day 2 · 8:00 PM', spots:'12 left', cost:40 },
-  { id:'startup', emoji:'🚀', name:'Startup Mixer',       desc:'Pitch your ideas, connect with co-founders & investors',  time:'Day 2 · 3:00 PM', spots:'55 left', cost:25 },
-  { id:'yoga',    emoji:'🧘', name:'Sunrise Yoga',        desc:'Beachside breathwork session as the sun rises over Danang', time:'Day 3 · 6:00 AM', spots:'20 left', cost:15 },
-  { id:'food',    emoji:'🍜', name:'Street Food Tour',    desc:'Expert-guided walk through Da Nang\'s best street food',  time:'Day 3 · 7:00 PM', spots:'9 left',  cost:20 },
+  { id:'sunset',  emoji:'🌅', name:'Sunset Networking',  desc:'Rooftop mixer overlooking the Han River at golden hour',  time:'Day 1 · 6:00 PM', spots:'38 left', cost:300 },
+  { id:'beach',   emoji:'🏖️', name:'Beach Party',         desc:'Full moon bonfire at My Khe Beach with live DJ sets',     time:'Day 2 · 8:00 PM', spots:'12 left', cost:400 },
+  { id:'startup', emoji:'🚀', name:'Startup Mixer',       desc:'Pitch your ideas, connect with co-founders & investors',  time:'Day 2 · 3:00 PM', spots:'55 left', cost:250 },
+  { id:'yoga',    emoji:'🧘', name:'Sunrise Yoga',        desc:'Beachside breathwork session as the sun rises over Danang', time:'Day 3 · 6:00 AM', spots:'20 left', cost:150 },
+  { id:'food',    emoji:'🍜', name:'Street Food Tour',    desc:'Expert-guided walk through Da Nang\'s best street food',  time:'Day 3 · 7:00 PM', spots:'9 left',  cost:200 },
 ];
 
 const URLS = {
@@ -753,18 +750,18 @@ function buyTicket(type, amount) {
 
     // Update NomadFest page
     document.getElementById('nf-ticket-section').style.display = 'none';
-    document.getElementById('nf-nom-earned').innerHTML = `${amount} <small>NOM Credits</small>`;
+    document.getElementById('nf-nom-earned').innerHTML = `${amount.toLocaleString()} <small>NOM Credits</small>`;
     document.getElementById('nf-success-wrap').style.display = 'block';
 
     // Prepare email
-    document.getElementById('email-nom-amount').textContent = amount;
+    document.getElementById('email-nom-amount').textContent = amount.toLocaleString();
     document.getElementById('email-ticket-type').textContent = type === 'vip' ? 'Visionary Pass' : 'Explorer Pass';
 
     // Notify email tab
     document.getElementById('email-notify').style.display = 'inline-block';
     document.getElementById('inbox-badge').textContent = '1';
 
-    showToast(`🎉 ${amount} NOM Credits added to your wallet!`, 'success');
+    showToast(`🎉 ${amount.toLocaleString()} NOM Credits added to your wallet!`, 'success');
   }, 2000);
 }
 
@@ -788,21 +785,21 @@ function selectEmail(type) {
 // ═══════════════════════════════════
 function refreshNomWallet() {
   const balEl = document.getElementById('nom-balance-display');
-  balEl.innerHTML = `${state.credits} <span class="nunit">NOM</span>`;
+  balEl.innerHTML = `${state.credits.toLocaleString()} <span class="nunit">NOM</span>`;
   balEl.classList.add('pulse');
   setTimeout(() => balEl.classList.remove('pulse'), 500);
 
-  document.getElementById('nom-equiv').textContent = `≈ $${(state.credits * 1.0).toFixed(2)} USD equivalent`;
-  document.getElementById('nom-earned-stat').textContent = state.totalEarned;
+  document.getElementById('nom-equiv').textContent = `≈ $${(state.credits * 0.1).toFixed(2)} USD equivalent`;
+  document.getElementById('nom-earned-stat').textContent = state.totalEarned.toLocaleString();
 
   const spent = state.totalEarned - state.credits;
-  document.getElementById('nom-spent-stat').textContent = spent;
+  document.getElementById('nom-spent-stat').textContent = spent.toLocaleString();
   document.getElementById('nom-events-count').textContent = state.eventsCount;
   document.getElementById('nom-ev-trend').textContent = state.eventsCount > 0 ? `+${state.eventsCount} this week` : '';
 
   const pct = state.totalEarned > 0 ? Math.round((spent / state.totalEarned) * 100) : 0;
   document.getElementById('nom-prog-fill').style.width = pct + '%';
-  document.getElementById('nom-prog-text').textContent = `${spent} / ${state.totalEarned} NOM`;
+  document.getElementById('nom-prog-text').textContent = `${spent.toLocaleString()} / ${state.totalEarned.toLocaleString()} NOM`;
 
   const list = document.getElementById('nom-txn-list');
   const count = document.getElementById('nom-txn-count');
@@ -815,7 +812,7 @@ function refreshNomWallet() {
       <div class="nom-txn-item">
         <div class="nom-txn-ico ${t.type}">${t.icon}</div>
         <div class="nom-txn-lbl"><h5>${t.label}</h5><p>${t.date}</p></div>
-        <div class="nom-txn-amt ${t.type}">${t.type === 'credit' ? '+' : '−'}${t.amount} NOM</div>
+        <div class="nom-txn-amt ${t.type}">${t.type === 'credit' ? '+' : '−'}${t.amount.toLocaleString()} NOM</div>
       </div>
     `).join('');
   }
@@ -825,7 +822,7 @@ function refreshNomWallet() {
 // EVENTS PAGE REFRESH
 // ═══════════════════════════════════
 function refreshEventsPage() {
-  document.getElementById('ev-bal-num').textContent = state.credits;
+  document.getElementById('ev-bal-num').textContent = state.credits.toLocaleString();
 
   const grid = document.getElementById('nf2-events-grid');
   grid.innerHTML = EVENTS.map(ev => {
@@ -849,7 +846,7 @@ function refreshEventsPage() {
           </div>
         </div>
         <div class="nf2-ev-right">
-          <div class="nf2-price"><div class="pm">${ev.cost}</div><div class="ps">NOM</div></div>
+          <div class="nf2-price"><div class="pm">${ev.cost.toLocaleString()}</div><div class="ps">NOM</div></div>
           <button class="${btnClass}" onclick="redeemEvent('${ev.id}',${ev.cost},'${ev.name}','${ev.emoji}')" id="nf2-btn-${ev.id}" ${disabled}>${btnText}</button>
         </div>
       </div>
